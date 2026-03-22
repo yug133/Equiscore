@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  # ─── PostgreSQL Database ────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: equiscore_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: equiscore_user
+      POSTGRES_PASSWORD: equiscore_pass
+      POSTGRES_DB: equiscore_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U equiscore_user -d equiscore_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── FastAPI Backend ────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: equiscore_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://equiscore_user:equiscore_pass@postgres:5432/equiscore_db
+      APP_ENV: development
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  # ─── Next.js Frontend ──────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: equiscore_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+    driver: local

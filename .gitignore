@@ -1,0 +1,56 @@
+# ─── Python ──────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ─── Virtual Environment ─────────────────────────────────────────────
+venv/
+.venv/
+env/
+
+# ─── Environment Files ──────────────────────────────────────────────
+.env
+.env.local
+.env.production
+
+# ─── IDE ─────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ─── Node.js ─────────────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Data & Models ───────────────────────────────────────────────────
+*.csv
+*.parquet
+*.pkl
+*.joblib
+*.h5
+*.model
+data/raw/
+models/saved/
+
+# ─── OS Files ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Docker ──────────────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ─── Logs ────────────────────────────────────────────────────────────
+*.log
+logs/
