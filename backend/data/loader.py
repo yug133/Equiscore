@@ -1,106 +1,97 @@
-"""
-Data Loader Module
-Load and join Home Credit CSV files for the EquiScore pipeline.
-"""
-
 import os
-from typing import Dict, Optional
-
 import pandas as pd
+from typing import Dict
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+RAW_DATA_PATH = os.path.join(os.path.dirname(__file__), "raw")
+
+REQUIRED_FILES = {
+    "application_train": "application_train.csv",
+    "application_test": "application_test.csv",
+    "installments": "installments_payments.csv",
+    "bureau": "bureau.csv",
+    "bureau_balance": "bureau_balance.csv",
+    "credit_card": "credit_card_balance.csv",
+    "pos_cash": "POS_CASH_balance.csv",
+}
 
 
-def load_application_data(data_dir: str) -> pd.DataFrame:
+def load_all_tables(data_path: str = RAW_DATA_PATH) -> Dict[str, pd.DataFrame]:
     """
-    Load the main application_train.csv and application_test.csv files.
+    Load all Home Credit CSV files into a dictionary of DataFrames.
 
-    Reads the primary Home Credit application tables containing
-    socio-demographic and financial features for each loan application.
+    Reads each required CSV file from the given directory and returns
+    them as a keyed dictionary for downstream use in the pipeline.
 
     Args:
-        data_dir: Path to directory containing the raw CSV files.
-
-    Returns:
-        DataFrame with all application records.
-    """
-    raise NotImplementedError("To be implemented")
-
-
-def load_bureau_data(data_dir: str) -> pd.DataFrame:
-    """
-    Load bureau.csv containing credit history from other financial institutions.
-
-    Args:
-        data_dir: Path to directory containing the raw CSV files.
-
-    Returns:
-        DataFrame with bureau credit records indexed by SK_ID_CURR.
-    """
-    raise NotImplementedError("To be implemented")
-
-
-def load_installments_data(data_dir: str) -> pd.DataFrame:
-    """
-    Load installments_payments.csv with repayment history.
-
-    Args:
-        data_dir: Path to directory containing the raw CSV files.
-
-    Returns:
-        DataFrame with instalment payment records.
-    """
-    raise NotImplementedError("To be implemented")
-
-
-def load_credit_card_data(data_dir: str) -> pd.DataFrame:
-    """
-    Load credit_card_balance.csv with monthly credit card snapshots.
-
-    Args:
-        data_dir: Path to directory containing the raw CSV files.
-
-    Returns:
-        DataFrame with credit card balance records.
-    """
-    raise NotImplementedError("To be implemented")
-
-
-def load_pos_cash_data(data_dir: str) -> pd.DataFrame:
-    """
-    Load POS_CASH_balance.csv with monthly point-of-sale / cash loan snapshots.
-
-    Args:
-        data_dir: Path to directory containing the raw CSV files.
-
-    Returns:
-        DataFrame with POS cash balance records.
-    """
-    raise NotImplementedError("To be implemented")
-
-
-def load_previous_applications(data_dir: str) -> pd.DataFrame:
-    """
-    Load previous_application.csv with historical loan applications.
-
-    Args:
-        data_dir: Path to directory containing the raw CSV files.
-
-    Returns:
-        DataFrame with previous application records.
-    """
-    raise NotImplementedError("To be implemented")
-
-
-def load_all_tables(data_dir: str) -> Dict[str, pd.DataFrame]:
-    """
-    Load all Home Credit CSV tables and return as a dictionary.
-
-    Convenience function that loads all six tables and returns them
-    in a single dictionary keyed by table name.
-
-    Args:
-        data_dir: Path to directory containing the raw CSV files.
+        data_path: Path to the folder containing raw CSV files.
 
     Returns:
         Dictionary mapping table names to their DataFrames.
+        Keys: application_train, application_test, installments,
+              bureau, bureau_balance, credit_card, pos_cash
+    
+    Raises:
+        FileNotFoundError: If any required CSV file is missing.
     """
-    raise NotImplementedError("To be implemented")
+    dataframes = {}
+    for key, filename in REQUIRED_FILES.items():
+        filepath = os.path.join(data_path, filename)
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Missing required file: {filepath}")
+        logger.info(f"Loading {filename}...")
+        dataframes[key] = pd.read_csv(filepath)
+        logger.info(f"Loaded {filename}: {dataframes[key].shape}")
+    return dataframes
+
+
+def load_single_table(filename: str, data_path: str = RAW_DATA_PATH) -> pd.DataFrame:
+    """
+    Load a single CSV file by filename.
+
+    Useful for loading one table at a time during development
+    or feature engineering without loading the full dataset.
+
+    Args:
+        filename: Name of the CSV file (e.g. 'application_train.csv')
+        data_path: Path to the folder containing raw CSV files.
+
+    Returns:
+        DataFrame with the contents of the CSV file.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+    """
+    filepath = os.path.join(data_path, filename)
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File not found: {filepath}")
+    logger.info(f"Loading {filename}...")
+    df = pd.read_csv(filepath)
+    logger.info(f"Loaded {filename}: {df.shape}")
+    return df
+
+
+def get_data_summary(dataframes: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """
+    Print a summary of all loaded DataFrames.
+
+    Shows row count, column count, and memory usage for each table.
+    Useful for a quick sanity check after loading.
+
+    Args:
+        dataframes: Dictionary of table name to DataFrame.
+
+    Returns:
+        Summary DataFrame with shape and memory info per table.
+    """
+    summary = []
+    for name, df in dataframes.items():
+        summary.append({
+            "table": name,
+            "rows": df.shape[0],
+            "columns": df.shape[1],
+            "memory_mb": round(df.memory_usage(deep=True).sum() / 1e6, 2)
+        })
+    return pd.DataFrame(summary)

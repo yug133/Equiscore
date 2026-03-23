@@ -1,43 +1,37 @@
-"""
-Logger Module
-Structured logging setup for the EquiScore application.
-"""
-
 import logging
 import sys
 from typing import Optional
 
 
-def setup_logger(
-    name: str = "equiscore",
-    level: str = "INFO",
-    log_file: Optional[str] = None,
-) -> logging.Logger:
+def get_logger(name: str, level: Optional[int] = logging.INFO) -> logging.Logger:
     """
-    Configure and return a structured logger instance.
+    Create and return a configured logger instance.
 
-    Sets up console and optional file handlers with a consistent format
-    including timestamp, level, module, and message.
+    Sets up structured logging with timestamp, logger name, level,
+    and message. Outputs to stdout for Docker-friendly log collection.
 
     Args:
-        name: Logger name (default: 'equiscore').
-        level: Logging level string ('DEBUG', 'INFO', 'WARNING', 'ERROR').
-        log_file: Optional file path for log output. If None, logs to stdout only.
+        name: Logger name, typically __name__ of the calling module.
+        level: Logging level. Default is logging.INFO.
 
     Returns:
-        Configured logging.Logger instance.
+        Configured Logger instance.
     """
-    raise NotImplementedError("To be implemented")
+    logger = logging.getLogger(name)
 
+    if logger.handlers:
+        return logger
 
-def get_logger(name: str = "equiscore") -> logging.Logger:
-    """
-    Retrieve an existing logger by name.
+    logger.setLevel(level)
 
-    Args:
-        name: Logger name to retrieve.
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(level)
 
-    Returns:
-        logging.Logger instance.
-    """
-    raise NotImplementedError("To be implemented")
+    formatter = logging.Formatter(
+        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    return logger
