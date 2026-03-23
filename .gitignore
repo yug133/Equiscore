@@ -54,3 +54,21 @@ docker-compose.override.yml
 # ─── Logs ────────────────────────────────────────────────────────────
 *.log
 logs/
+
+# Large dataset files — download via Kaggle CLI
+backend/data/raw/*.zip
+backend/data/raw/*.csv
+backend/data/raw/*.parquet
+
+# Trained model files — too large for git
+backend/models/saved/*.pkl
+
+# Python cache
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Environment
+.env
