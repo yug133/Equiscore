@@ -307,14 +307,10 @@ backend/data/raw/
 
 | Member | Responsibility |
 |--------|---------------|
-| Member 1 | Data pipeline (loading, preprocessing, splitting) |
-| Member 2 | Feature engineering (TRS, ISI, PBS, DFS, GII) |
-| Member 3 | Model training & evaluation (LR, RF, XGBoost, Fair XGBoost) |
-| Member 4 | Explainability (SHAP, DiCE, consistency scoring) |
-| Member 5 | Fairness auditing (DPG, EOD, DIR, intersectional analysis) |
-| Member 6 | Backend API (FastAPI routes, schemas, database) |
-| Member 7 | Frontend (Next.js pages, components, API integration) |
-| Member 8 | DevOps & documentation (Docker, CI/CD, README) |
+| Member 1 | Data pipeline (loading, preprocessing, splitting), Feature engineering (TRS, ISI, PBS, DFS, GII) |
+| Member 2 | Model training & evaluation (LR, RF, XGBoost, Fair XGBoost), Explainability (SHAP, DiCE, consistency scoring) |
+| Member 3 | Fairness auditing (DPG, EOD, DIR, intersectional analysis), Backend API (FastAPI routes, schemas, database) |
+| Member 4 | Frontend (Next.js pages, components, API integration), DevOps & documentation (Docker, CI/CD, README) |
 
 ---
 
